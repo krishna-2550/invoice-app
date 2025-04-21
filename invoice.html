@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice Generator - INR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h2, h3, h4 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        flex-direction: row;
+      }
+    }
+
+    .form-section, .invoice-preview {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      flex: 1;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .item-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .item-row input {
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn.add-btn {
+      background: #28a745;
+    }
+
+    .invoice-box {
+      background: #fff;
+      padding: 30px;
+      font-size: 14px;
+      color: #2c3e50;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+    }
+
+    .invoice-box table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      border: 1px solid #ddd;
+    }
+
+    .invoice-box th, .invoice-box td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    .invoice-box th {
+      background-color: #f8f8f8;
+    }
+
+    .invoice-total {
+      text-align: right;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    .invoice-box p {
+      margin: 4px 0;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Invoice Generator</h2>
+<div class="container">
+  <!-- Form Section -->
+  <div class="form-section">
+    <h3>Invoice Details</h3>
+    <input type="text" id="companyName" placeholder="Your Company Name">
+    <input type="text" id="clientName" placeholder="Client Name">
+    <input type="date" id="invoiceDate">
+    <input type="text" id="invoiceNumber" placeholder="Invoice Number">
+
+    <h4>Items</h4>
+    <div id="items">
+      <div class="item-row">
+        <input type="text" placeholder="Item Name" class="item-name">
+        <input type="number" placeholder="Qty" class="item-qty">
+        <input type="number" placeholder="Price" class="item-price">
+      </div>
+    </div>
+    <button class="btn add-btn" onclick="addItem()">+ Add Item</button>
+
+    <input type="number" id="taxRate" placeholder="Tax % (e.g., 18)">
+    <button class="btn" onclick="generateInvoice()">Generate Invoice</button>
+    <button class="btn" onclick="downloadPDF()">Download PDF</button>
+  </div>
+
+  <!-- Invoice Preview -->
+  <div class="invoice-preview">
+    <h3>Invoice Preview</h3>
+    <div id="invoiceBox" class="invoice-box">
+      <p style="color: #888;">Fill in the form to generate invoice...</p>
+    </div>
+  </div>
+</div>
+
+<!-- html2pdf.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+  function addItem() {
+    const container = document.getElementById('items');
+    const row = document.createElement('div');
+    row.classList.add('item-row');
+    row.innerHTML = `
+      <input type="text" placeholder="Item Name" class="item-name">
+      <input type="number" placeholder="Qty" class="item-qty">
+      <input type="number" placeholder="Price" class="item-price">
+    `;
+    container.appendChild(row);
+  }
+
+  function generateInvoice() {
+    const company = document.getElementById('companyName').value;
+    const client = document.getElementById('clientName').value;
+    const date = document.getElementById('invoiceDate').value;
+    const number = document.getElementById('invoiceNumber').value;
+    const tax = parseFloat(document.getElementById('taxRate').value) || 0;
+
+    const names = document.querySelectorAll('.item-name');
+    const qtys = document.querySelectorAll('.item-qty');
+    const prices = document.querySelectorAll('.item-price');
+
+    let rows = '';
+    let subtotal = 0;
+
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i].value;
+      const qty = parseFloat(qtys[i].value) || 0;
+      const price = parseFloat(prices[i].value) || 0;
+      const total = qty * price;
+      subtotal += total;
+
+      if (name) {
+        rows += `
+          <tr>
+            <td>${name}</td>
+            <td>${qty}</td>
+            <td>₹${price.toFixed(2)}</td>
+            <td>₹${total.toFixed(2)}</td>
+          </tr>
+        `;
+      }
+    }
+
+    const taxAmount = (subtotal * tax) / 100;
+    const totalAmount = subtotal + taxAmount;
+
+    const invoiceHTML = `
+      <h2 style="text-align:center;">INVOICE</h2>
+      <p><strong>From:</strong> ${company}</p>
+      <p><strong>To:</strong> ${client}</p>
+      <p><strong>Date:</strong> ${date}</p>
+      <p><strong>Invoice #:</strong> ${number}</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+
+      <div class="invoice-total">
+        Subtotal: ₹${subtotal.toFixed(2)}<br>
+        Tax (${tax}%): ₹${taxAmount.toFixed(2)}<br>
+        <strong>Total: ₹${totalAmount.toFixed(2)}</strong>
+      </div>
+    `;
+
+    document.getElementById('invoiceBox').innerHTML = invoiceHTML;
+  }
+
+  function downloadPDF() {
+  const element = document.getElementById('invoiceBox');
+  const opt = {
+    margin: [0.5, 0.5, 0.5, 0.5], // top, left, bottom, right
+    filename: 'invoice.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true
+    },
+    jsPDF: {
+      unit: 'in',
+      format: 'a4',
+      orientation: 'portrait'
+    },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] } // ensures content splits nicely
+  };
+  html2pdf().set(opt).from(element).save();
+}
+
+  window.onload = () => {
+    const today = new Date().toISOString().substr(0, 10);
+    document.getElementById('invoiceDate').value = today;
+  };
+</script>
+
+</body>
+</html>
