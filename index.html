@@ -2,193 +2,598 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Invoice Generator - INR</title>
+  <title>Smart Invoice Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --secondary: #64748b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --background: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+      --radius: 0.75rem;
+    }
+
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      font-family: 'Roboto', sans-serif;
-      background: #f0f2f5;
-      margin: 0;
-      padding: 20px;
-    }
-
-    h2, h3, h4 {
-      text-align: center;
-      color: #2c3e50;
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
     }
 
     .container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      max-width: 1100px;
-      margin: auto;
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
     }
 
-    @media (min-width: 768px) {
-      .container {
-        flex-direction: row;
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header p {
+      color: var(--text-light);
+      font-size: 1.125rem;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @media (min-width: 1024px) {
+      .main-content {
+        grid-template-columns: 1fr 1fr;
       }
     }
 
-    .form-section, .invoice-preview {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      flex: 1;
+    .form-section, .preview-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    input, textarea {
+    .form-section:hover, .preview-section:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .section-title i {
+      color: var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 2rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-light);
+      margin-bottom: 0.75rem;
+    }
+
+    input, select, textarea {
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.9375rem;
+      transition: all 0.2s ease;
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 500;
+      margin-bottom: 0.75rem;
+      height: 42px;
+    }
+
+    textarea {
+      height: auto;
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    input:last-child, select:last-child, textarea:last-child {
+      margin-bottom: 0;
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: var(--text-light);
+      opacity: 0.7;
+    }
+
+    input:hover, select:hover, textarea:hover {
+      border-color: var(--primary);
+      background: #f8fafc;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      background: white;
+    }
+
+    select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1.25rem;
+      padding-right: 2.5rem;
+      cursor: pointer;
     }
 
     .item-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: var(--background);
+      border-radius: var(--radius);
+      transition: all 0.2s;
+      border: 1px solid var(--border);
     }
 
-    .item-row input {
-      flex: 1;
-      min-width: 100px;
+    .item-row:hover {
+      background: #f1f5f9;
+      border-color: var(--primary);
+    }
+
+    .item-row input, .item-row select {
+      margin: 0;
+      padding: 0.625rem 0.875rem;
+      height: 38px;
+    }
+
+    .item-row select {
+      padding-right: 2rem;
+      background-position: right 0.75rem center;
+      background-size: 1rem;
+    }
+
+    .item-row .btn {
+      padding: 0.5rem;
+      min-width: unset;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .invoice-info-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .invoice-info-row input,
+    .invoice-info-row select {
+      margin-bottom: 0;
     }
 
     .btn {
-      display: inline-block;
-      margin-top: 15px;
-      padding: 10px 20px;
-      background: #007bff;
-      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
       border: none;
-      border-radius: 6px;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 600;
       cursor: pointer;
-      font-size: 14px;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+      min-width: 120px;
+      height: 40px;
     }
 
-    .btn.add-btn {
-      background: #28a745;
+    .btn i {
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: var(--text);
+      border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+      transform: translateY(-1px);
+      border-color: var(--primary);
+    }
+
+    .btn-secondary:active {
+      transform: translateY(0);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid var(--border);
     }
 
     .invoice-box {
-      background: #fff;
-      padding: 15px;
-      font-size: 14px;
-      color: #2c3e50;
-      border: 2px solid #ccc;
-      border-radius: 12px;
-      width: 100%;
-      margin: auto;
-      overflow-x: auto;
+      background: var(--surface);
+      padding: 2rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      transition: all 0.3s ease;
+    }
+
+    .invoice-box:hover {
+      box-shadow: var(--shadow);
     }
 
     .invoice-box table {
       width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      border: 1px solid #ddd;
-      min-width: 500px; /* Ensure table doesn't get too squeezed */
-    }
-
-    .invoice-box th, .invoice-box td {
-      border: 1px solid #ddd;
-      padding: 12px;
-      text-align: left;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1.5rem 0;
     }
 
     .invoice-box th {
-      background-color: #f8f8f8;
+      background: #f8fafc;
+      font-weight: 600;
+      text-align: left;
+      padding: 1rem;
+      border-bottom: 2px solid var(--border);
+      color: var(--text);
+    }
+
+    .invoice-box td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .invoice-box tr:last-child td {
+      border-bottom: none;
     }
 
     .invoice-total {
       text-align: right;
-      margin-top: 20px;
-      font-weight: bold;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 2px solid var(--border);
+      font-size: 1.125rem;
     }
 
-    .invoice-box p {
-      margin: 4px 0;
+    .invoice-total strong {
+      font-size: 1.25rem;
+      color: var(--primary);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.375rem 0.875rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
+
+    .status-draft {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-sent {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-paid {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     @media (max-width: 768px) {
       .container {
-        padding: 10px;
+        padding: 1rem;
       }
 
-      .form-section, .invoice-preview {
-        padding: 15px;
+      .header h1 {
+        font-size: 2rem;
       }
 
-      .invoice-box {
-        padding: 10px;
-        font-size: 13px;
+      .item-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
       }
 
-      .invoice-box table {
-        font-size: 12px;
-      }
-
-      .invoice-box th, .invoice-box td {
-        padding: 8px;
+      .actions {
+        flex-direction: column;
+        gap: 0.75rem;
       }
 
       .btn {
         width: 100%;
-        margin-top: 10px;
+        min-width: unset;
       }
 
-      .item-row input {
-        min-width: 80px;
+      .item-row {
+        padding: 0.875rem;
+      }
+
+      .item-row input, .item-row select {
+        padding: 0.625rem 0.875rem;
+      }
+
+      .form-section, .preview-section {
+        padding: 1.25rem;
+      }
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: white;
+        margin: 0;
+        padding: 0;
+      }
+
+      .container {
+        margin: 0;
+        padding: 0;
+        max-width: none;
+      }
+
+      .form-section {
+        display: none !important;
+      }
+
+      .preview-section {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .invoice-box {
+        box-shadow: none !important;
+        padding: 2rem !important;
+        margin: 0 !important;
+        width: 210mm !important;
+        min-height: 297mm !important;
+        page-break-after: always;
+      }
+
+      .invoice-box table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+      }
+
+      .invoice-box th,
+      .invoice-box td {
+        padding: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important;
+      }
+
+      .invoice-box th {
+        background: #f8fafc !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .invoice-total {
+        margin-top: 2rem !important;
+        padding-top: 1rem !important;
+        border-top: 2px solid #e2e8f0 !important;
+      }
+
+      .section-title {
+        display: none !important;
       }
     }
   </style>
 </head>
 <body>
 
-<h2>Invoice Generator</h2>
 <div class="container">
-  <!-- Form Section -->
-  <div class="form-section">
-    <h3>Invoice Details</h3>
-    <input type="text" id="companyName" placeholder="Your Company Name">
-    <input type="text" id="clientName" placeholder="Client Name">
-    <input type="date" id="invoiceDate">
-    <input type="text" id="invoiceNumber" placeholder="Invoice Number">
-
-    <h4>Items</h4>
-    <div id="items">
-      <div class="item-row">
-        <input type="text" placeholder="Item Name" class="item-name">
-        <input type="number" placeholder="Qty" class="item-qty">
-        <input type="number" placeholder="Price" class="item-price">
-      </div>
-    </div>
-    <button class="btn add-btn" onclick="addItem()">+ Add Item</button>
-
-    <input type="number" id="taxRate" placeholder="Tax % (e.g., 18)">
-    <button class="btn" onclick="generateInvoice()">Generate Invoice</button>
-    <button class="btn" onclick="downloadPDF()">Download PDF</button>
+  <div class="header">
+    <h1>Smart Invoice Generator</h1>
+    <p>Create professional invoices in minutes</p>
   </div>
 
-  <!-- Invoice Preview -->
-  <div class="invoice-preview">
-    <h3>Invoice Preview</h3>
-    <div id="invoiceBox" class="invoice-box">
-      <p style="color: #888;">Fill in the form to generate invoice...</p>
+  <div class="main-content">
+    <div class="form-section">
+      <h2 class="section-title">
+        <i class="fas fa-file-invoice"></i>
+        Invoice Details
+      </h2>
+
+      <div class="form-group">
+        <label>From (Your Business)</label>
+        <input type="text" id="companyName" placeholder="Business Name">
+        <textarea id="companyAddress" placeholder="Business Address" rows="2"></textarea>
+        <input type="email" id="companyEmail" placeholder="Business Email">
+        <input type="tel" id="companyPhone" placeholder="Business Phone">
+        <input type="text" id="companyTaxId" placeholder="Tax ID / GST Number">
+      </div>
+
+      <div class="form-group">
+        <label>To (Client)</label>
+        <input type="text" id="clientName" placeholder="Client Name">
+        <textarea id="clientAddress" placeholder="Client Address" rows="2"></textarea>
+        <input type="email" id="clientEmail" placeholder="Client Email">
+        <input type="tel" id="clientPhone" placeholder="Client Phone">
+      </div>
+
+      <div class="form-group">
+        <label>Invoice Information</label>
+        <div class="invoice-info-row">
+          <input type="text" id="invoiceNumber" placeholder="Invoice Number">
+          <input type="date" id="invoiceDate">
+          <select id="currency">
+            <option value="INR">₹ INR</option>
+            <option value="USD">$ USD</option>
+            <option value="EUR">€ EUR</option>
+            <option value="GBP">£ GBP</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Items</label>
+        <div id="items">
+          <div class="item-row">
+            <input type="text" placeholder="Item Name" class="item-name">
+            <input type="number" placeholder="Qty" class="item-qty">
+            <input type="number" placeholder="Price" class="item-price">
+            <select class="item-tax">
+              <option value="0">No Tax</option>
+              <option value="5">5%</option>
+              <option value="12">12%</option>
+              <option value="18">18%</option>
+              <option value="28">28%</option>
+            </select>
+            <button class="btn btn-danger" onclick="removeItem(this)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        <button class="btn btn-secondary" onclick="addItem()">
+          <i class="fas fa-plus"></i> Add Item
+        </button>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="generateInvoice()">
+          <i class="fas fa-sync"></i> Generate
+        </button>
+        <button class="btn btn-secondary" onclick="saveInvoice()">
+          <i class="fas fa-save"></i> Save
+        </button>
+        <button class="btn btn-secondary" onclick="printInvoice()">
+          <i class="fas fa-print"></i> Print
+        </button>
+        <button class="btn btn-primary" onclick="downloadPDF()">
+          <i class="fas fa-file-pdf"></i> PDF
+        </button>
+      </div>
+    </div>
+
+    <div class="preview-section">
+      <h2 class="section-title">
+        <i class="fas fa-eye"></i>
+        Preview
+        <span id="statusBadge" class="status-badge status-draft">Draft</span>
+      </h2>
+      <div id="invoiceBox" class="invoice-box">
+        <p style="color: var(--text-light);">Fill in the form to generate invoice...</p>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- html2pdf.js -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
@@ -200,97 +605,233 @@
       <input type="text" placeholder="Item Name" class="item-name">
       <input type="number" placeholder="Qty" class="item-qty">
       <input type="number" placeholder="Price" class="item-price">
+      <select class="item-tax">
+        <option value="0">No Tax</option>
+        <option value="5">5%</option>
+        <option value="12">12%</option>
+        <option value="18">18%</option>
+        <option value="28">28%</option>
+      </select>
+      <button class="btn btn-danger" onclick="removeItem(this)">
+        <i class="fas fa-trash"></i>
+      </button>
     `;
     container.appendChild(row);
   }
 
+  function removeItem(button) {
+    button.closest('.item-row').remove();
+  }
+
   function generateInvoice() {
-    const company = document.getElementById('companyName').value;
-    const client = document.getElementById('clientName').value;
+    const company = {
+      name: document.getElementById('companyName').value,
+      address: document.getElementById('companyAddress').value,
+      email: document.getElementById('companyEmail').value,
+      phone: document.getElementById('companyPhone').value,
+      taxId: document.getElementById('companyTaxId').value
+    };
+
+    const client = {
+      name: document.getElementById('clientName').value,
+      address: document.getElementById('clientAddress').value,
+      email: document.getElementById('clientEmail').value,
+      phone: document.getElementById('clientPhone').value
+    };
+
     const date = document.getElementById('invoiceDate').value;
     const number = document.getElementById('invoiceNumber').value;
-    const tax = parseFloat(document.getElementById('taxRate').value) || 0;
+    const currency = document.getElementById('currency').value;
 
     const names = document.querySelectorAll('.item-name');
     const qtys = document.querySelectorAll('.item-qty');
     const prices = document.querySelectorAll('.item-price');
+    const taxes = document.querySelectorAll('.item-tax');
 
     let rows = '';
     let subtotal = 0;
+    let taxTotal = 0;
 
     for (let i = 0; i < names.length; i++) {
       const name = names[i].value;
       const qty = parseFloat(qtys[i].value) || 0;
       const price = parseFloat(prices[i].value) || 0;
+      const taxRate = parseFloat(taxes[i].value) || 0;
       const total = qty * price;
+      const tax = (total * taxRate) / 100;
+      
       subtotal += total;
+      taxTotal += tax;
 
       if (name) {
         rows += `
           <tr>
-            <td>${name}</td>
-            <td>${qty}</td>
-            <td>₹${price.toFixed(2)}</td>
-            <td>₹${total.toFixed(2)}</td>
+            <td style="padding: 1rem; border-bottom: 1px solid #e2e8f0;">${name}</td>
+            <td style="padding: 1rem; text-align: center; border-bottom: 1px solid #e2e8f0;">${qty}</td>
+            <td style="padding: 1rem; text-align: right; border-bottom: 1px solid #e2e8f0;">${getCurrencySymbol(currency)}${price.toFixed(2)}</td>
+            <td style="padding: 1rem; text-align: center; border-bottom: 1px solid #e2e8f0;">${taxRate}%</td>
+            <td style="padding: 1rem; text-align: right; border-bottom: 1px solid #e2e8f0;">${getCurrencySymbol(currency)}${total.toFixed(2)}</td>
           </tr>
         `;
       }
     }
 
-    const taxAmount = (subtotal * tax) / 100;
-    const totalAmount = subtotal + taxAmount;
+    const totalAmount = subtotal + taxTotal;
 
     const invoiceHTML = `
-      <h2 style="text-align:center;">INVOICE</h2>
-      <p><strong>From:</strong> ${company}</p>
-      <p><strong>To:</strong> ${client}</p>
-      <p><strong>Date:</strong> ${date}</p>
-      <p><strong>Invoice #:</strong> ${number}</p>
+      <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 2rem; border-radius: 0.5rem; margin-bottom: 2rem; color: white;">
+        <h1 style="margin: 0; font-size: 2rem; font-weight: 700;">INVOICE</h1>
+        <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Invoice #${number}</p>
+      </div>
 
-      <table>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+          <h3 style="color: #1e40af; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 600;">From:</h3>
+          <p style="margin-bottom: 0.75rem; color: #1e293b;"><strong style="color: #0f172a;">${company.name}</strong></p>
+          <p style="margin-bottom: 0.75rem; color: #475569;">${company.address}</p>
+          <p style="margin-bottom: 0.75rem; color: #475569;">Email: ${company.email}</p>
+          <p style="margin-bottom: 0.75rem; color: #475569;">Phone: ${company.phone}</p>
+          ${company.taxId ? `<p style="margin-bottom: 0.75rem; color: #475569;">Tax ID: ${company.taxId}</p>` : ''}
+        </div>
+        
+        <div style="background: #f8fafc; padding: 1.5rem; border-radius: 0.5rem; border: 1px solid #e2e8f0;">
+          <h3 style="color: #1e40af; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 600;">To:</h3>
+          <p style="margin-bottom: 0.75rem; color: #1e293b;"><strong style="color: #0f172a;">${client.name}</strong></p>
+          <p style="margin-bottom: 0.75rem; color: #475569;">${client.address}</p>
+          <p style="margin-bottom: 0.75rem; color: #475569;">Email: ${client.email}</p>
+          <p style="margin-bottom: 0.75rem; color: #475569;">Phone: ${client.phone}</p>
+        </div>
+      </div>
+
+      <div style="background: #f8fafc; padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <div>
+            <p style="margin-bottom: 0.75rem; color: #475569;"><strong style="color: #0f172a;">Invoice Date:</strong> ${date}</p>
+            <p style="margin-bottom: 0.75rem; color: #475569;"><strong style="color: #0f172a;">Due Date:</strong> ${date}</p>
+          </div>
+          <div>
+            <p style="margin-bottom: 0.75rem; color: #475569;"><strong style="color: #0f172a;">Currency:</strong> ${currency}</p>
+            <p style="margin-bottom: 0.75rem; color: #475569;"><strong style="color: #0f172a;">Status:</strong> <span style="color: #059669; font-weight: 600;">Paid</span></p>
+          </div>
+        </div>
+      </div>
+
+      <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0; background: white; border-radius: 0.5rem; overflow: hidden;">
         <thead>
           <tr>
-            <th>Item</th>
-            <th>Qty</th>
-            <th>Unit Price</th>
-            <th>Total</th>
+            <th style="padding: 1rem; text-align: left; background: #1e40af; color: white; font-weight: 600;">Item</th>
+            <th style="padding: 1rem; text-align: center; background: #1e40af; color: white; font-weight: 600;">Qty</th>
+            <th style="padding: 1rem; text-align: right; background: #1e40af; color: white; font-weight: 600;">Unit Price</th>
+            <th style="padding: 1rem; text-align: center; background: #1e40af; color: white; font-weight: 600;">Tax</th>
+            <th style="padding: 1rem; text-align: right; background: #1e40af; color: white; font-weight: 600;">Total</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
 
-      <div class="invoice-total">
-        Subtotal: ₹${subtotal.toFixed(2)}<br>
-        Tax (${tax}%): ₹${taxAmount.toFixed(2)}<br>
-        <strong>Total: ₹${totalAmount.toFixed(2)}</strong>
+      <div style="background: #f8fafc; padding: 1.5rem; border-radius: 0.5rem; margin-top: 2rem; border: 1px solid #e2e8f0;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+          <div>
+            <p style="margin-bottom: 1rem; color: #475569;">Thank you for your business!</p>
+            <p style="color: #475569;">Payment is due within 30 days.</p>
+          </div>
+          <div style="text-align: right;">
+            <p style="margin-bottom: 0.75rem; color: #475569;">Subtotal: <span style="color: #0f172a; font-weight: 500;">${getCurrencySymbol(currency)}${subtotal.toFixed(2)}</span></p>
+            <p style="margin-bottom: 0.75rem; color: #475569;">Tax: <span style="color: #0f172a; font-weight: 500;">${getCurrencySymbol(currency)}${taxTotal.toFixed(2)}</span></p>
+            <p style="margin-top: 1rem; font-size: 1.25rem; color: #1e40af; font-weight: 600;">Total: ${getCurrencySymbol(currency)}${totalAmount.toFixed(2)}</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 0.875rem;">
+        <p>This is a computer-generated invoice. No signature is required.</p>
       </div>
     `;
 
     document.getElementById('invoiceBox').innerHTML = invoiceHTML;
+    updateStatus('sent');
+  }
+
+  function getCurrencySymbol(currency) {
+    const symbols = {
+      'INR': '₹',
+      'USD': '$',
+      'EUR': '€',
+      'GBP': '£'
+    };
+    return symbols[currency] || '₹';
+  }
+
+  function updateStatus(status) {
+    const badge = document.getElementById('statusBadge');
+    badge.className = 'status-badge';
+    badge.classList.add(`status-${status}`);
+    badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+  }
+
+  function saveInvoice() {
+    const invoiceData = {
+      company: {
+        name: document.getElementById('companyName').value,
+        address: document.getElementById('companyAddress').value,
+        email: document.getElementById('companyEmail').value,
+        phone: document.getElementById('companyPhone').value,
+        taxId: document.getElementById('companyTaxId').value
+      },
+      client: {
+        name: document.getElementById('clientName').value,
+        address: document.getElementById('clientAddress').value,
+        email: document.getElementById('clientEmail').value,
+        phone: document.getElementById('clientPhone').value
+      },
+      invoice: {
+        number: document.getElementById('invoiceNumber').value,
+        date: document.getElementById('invoiceDate').value,
+        currency: document.getElementById('currency').value
+      },
+      items: Array.from(document.querySelectorAll('.item-row')).map(row => ({
+        name: row.querySelector('.item-name').value,
+        quantity: row.querySelector('.item-qty').value,
+        price: row.querySelector('.item-price').value,
+        tax: row.querySelector('.item-tax').value
+      }))
+    };
+
+    localStorage.setItem('savedInvoice', JSON.stringify(invoiceData));
+    alert('Invoice saved successfully!');
+  }
+
+  function printInvoice() {
+    window.print();
   }
 
   function downloadPDF() {
     const element = document.getElementById('invoiceBox');
     const opt = {
-      margin: 0.5,
+      margin: [10, 10],
       filename: 'invoice.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 3, // Higher for better quality, especially on phones
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: { 
+        scale: 2,
         useCORS: true,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: document.body.scrollWidth,
-        windowHeight: document.body.scrollHeight
+        letterRendering: true,
+        scrollY: 0
       },
-      jsPDF: {
-        unit: 'in',
-        format: 'a4',
+      jsPDF: { 
+        unit: 'mm', 
+        format: 'a4', 
         orientation: 'portrait'
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      pagebreak: { mode: 'avoid-all' }
     };
-    html2pdf().set(opt).from(element).save();
+
+    // Add print-specific class before generating PDF
+    element.classList.add('printing');
+    
+    html2pdf().set(opt).from(element).save().then(() => {
+      // Remove print-specific class after PDF generation
+      element.classList.remove('printing');
+    });
   }
 
   window.onload = () => {
