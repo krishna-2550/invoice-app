@@ -81,13 +81,14 @@
 
     .invoice-box {
       background: #fff;
-      padding: 30px;
+      padding: 15px;
       font-size: 14px;
       color: #2c3e50;
       border: 2px solid #ccc;
       border-radius: 12px;
-      max-width: 794px; /* A4 width in px at 96dpi */
+      width: 100%;
       margin: auto;
+      overflow-x: auto;
     }
 
     .invoice-box table {
@@ -95,6 +96,7 @@
       border-collapse: collapse;
       margin-top: 20px;
       border: 1px solid #ddd;
+      min-width: 500px; /* Ensure table doesn't get too squeezed */
     }
 
     .invoice-box th, .invoice-box td {
@@ -115,6 +117,38 @@
 
     .invoice-box p {
       margin: 4px 0;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+
+      .form-section, .invoice-preview {
+        padding: 15px;
+      }
+
+      .invoice-box {
+        padding: 10px;
+        font-size: 13px;
+      }
+
+      .invoice-box table {
+        font-size: 12px;
+      }
+
+      .invoice-box th, .invoice-box td {
+        padding: 8px;
+      }
+
+      .btn {
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .item-row input {
+        min-width: 80px;
+      }
     }
   </style>
 </head>
